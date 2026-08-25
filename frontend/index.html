@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-assisted Legal Metrology Product Compliance Checker for packaged goods in India. Upload front and back packaging images to verify 8 mandatory declarations.">
+  <title>Legal Metrology Compliance Checker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Background Glow Accents (Hidden for government theme) -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header Section -->
+    <header class="header">
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        <span>Packaged Commodities Rules (PCR) Compliance</span>
+      </div>
+      <h1 class="header-title">Legal Metrology Compliance Checker</h1>
+      <p class="header-subtitle">Upload the front and back of a packaged product to check mandatory declarations.</p>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="main-nav" aria-label="Main Navigation">
+      <button class="nav-tab active" id="tab-checker" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <span>Compliance Checker</span>
+      </button>
+      <button class="nav-tab" id="tab-history" type="button">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Compliance History</span>
+        <span class="nav-count-badge" id="history-count-badge">0</span>
+      </button>
+    </nav>
+
+    <!-- Checker View Container -->
+    <div id="checker-view">
+      <!-- Quick Demo Preset Bar -->
+      <section class="samples-section">
+        <div class="samples-header">
+          <span class="samples-title">⚡ Quick Test Demo Samples:</span>
+          <span class="samples-desc">Click any sample pack to test immediately</span>
+        </div>
+        <div class="samples-grid" id="samples-container">
+          <!-- Injected via app.js -->
+          <button class="sample-btn" data-sample="compliant_biscuits">
+            <span class="sample-icon">✅</span>
+            <div class="sample-info">
+              <strong>Compliant Biscuit Pack</strong>
+              <small>All 8 Declarations (8/8 PASS)</small>
+            </div>
+          </button>
+          <button class="sample-btn" data-sample="flagged_missing_mrp_wording">
+            <span class="sample-icon">⚠️</span>
+            <div class="sample-info">
+              <strong>Missing MRP Tax Wording</strong>
+              <small>Lacks "(Inclusive of all taxes)"</small>
+            </div>
+          </button>
+          <button class="sample-btn" data-sample="flagged_missing_customer_care">
+            <span class="sample-icon">⚠️</span>
+            <div class="sample-info">
+              <strong>Missing Customer Care</strong>
+              <small>Lacks Helpline / Contact info</small>
+            </div>
+          </button>
+          <button class="sample-btn" data-sample="blurry_unverified">
+            <span class="sample-icon">🔍</span>
+            <div class="sample-info">
+              <strong>Blurry Quality Test</strong>
+              <small>Tests Image Quality Interceptor</small>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Alert / Validation Toast Area -->
+      <div id="validation-alert" class="alert-box alert-warning hidden" role="alert">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content" id="validation-alert-text">Please upload both the front and back images.</div>
+        <button class="alert-close" id="close-alert-btn" aria-label="Close alert">&times;</button>
+      </div>
+
+      <!-- Main Workspace Section -->
+      <main class="main-workspace" id="upload-workspace">
+        <div class="upload-grid">
+          <!-- Front Image Upload Card -->
+          <div class="upload-card" id="front-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">1</span>
+                <div>
+                  <h2 class="card-title">Front Image</h2>
+                  <p class="card-desc">Brand name, commodity name, net quantity</p>
+                </div>
+              </div>
+              <span class="card-req-pill">Required</span>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone" id="front-dropzone">
+              <input type="file" id="front-file-input" class="file-input" accept="image/jpeg,image/png,image/webp,image/jpg" aria-label="Upload Front Image">
+              <div class="dropzone-empty" id="front-empty-state">
+                <div class="upload-icon-wrapper">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                    <circle cx="9" cy="9" r="2"/>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                  </svg>
+                </div>
+                <p class="dropzone-text"><strong>Click to browse</strong> or drag & drop</p>
+                <p class="dropzone-subtext">Supports JPG, PNG, WEBP</p>
+              </div>
+
+              <!-- Preview State -->
+              <div class="dropzone-preview hidden" id="front-preview-state">
+                <img id="front-preview-img" src="" alt="Front Image Preview">
+                <div class="preview-overlay">
+                  <span class="preview-filename" id="front-filename">front_image.jpg</span>
+                  <div class="preview-actions">
+                    <button type="button" class="btn-action btn-replace" id="front-replace-btn" title="Replace Image">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                      Replace
+                    </button>
+                    <button type="button" class="btn-action btn-remove" id="front-remove-btn" title="Remove Image">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Back Image Upload Card -->
+          <div class="upload-card" id="back-card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <span class="card-step-badge">2</span>
+                <div>
+                  <h2 class="card-title">Back Image</h2>
+                  <p class="card-desc">MRP, manufacturer, dates, customer care</p>
+                </div>
+              </div>
+              <span class="card-req-pill">Required</span>
+            </div>
+
+            <!-- Dropzone -->
+            <div class="dropzone" id="back-dropzone">
+              <input type="file" id="back-file-input" class="file-input" accept="image/jpeg,image/png,image/webp,image/jpg" aria-label="Upload Back Image">
+              <div class="dropzone-empty" id="back-empty-state">
+                <div class="upload-icon-wrapper">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10 9 9 9 8 9"/>
+                  </svg>
+                </div>
+                <p class="dropzone-text"><strong>Click to browse</strong> or drag & drop</p>
+                <p class="dropzone-subtext">Supports JPG, PNG, WEBP</p>
+              </div>
+
+              <!-- Preview State -->
+              <div class="dropzone-preview hidden" id="back-preview-state">
+                <img id="back-preview-img" src="" alt="Back Image Preview">
+                <div class="preview-overlay">
+                  <span class="preview-filename" id="back-filename">back_image.jpg</span>
+                  <div class="preview-actions">
+                    <button type="button" class="btn-action btn-replace" id="back-replace-btn" title="Replace Image">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                      Replace
+                    </button>
+                    <button type="button" class="btn-action btn-remove" id="back-remove-btn" title="Remove Image">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button Area -->
+        <div class="action-bar">
+          <button type="button" id="check-btn" class="btn-primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            <span>Check Compliance</span>
+          </button>
+          <button type="button" id="clear-btn" class="btn-secondary">
+            <span>Reset</span>
+          </button>
+        </div>
+      </main>
+
+      <!-- Loading State -->
+      <div id="loading-section" class="loading-container hidden">
+        <div class="radar-spinner">
+          <div class="radar-ring ring-1"></div>
+          <div class="radar-ring ring-2"></div>
+          <div class="radar-core"></div>
+        </div>
+        <h3 class="loading-title" id="loading-status-text">Analyzing product images...</h3>
+        <div class="loading-steps">
+          <div class="step-item step-active" id="step-1">
+            <span class="step-bullet">1</span>
+            <span>Image Preprocessing & Quality Verification</span>
+          </div>
+          <div class="step-item" id="step-2">
+            <span class="step-bullet">2</span>
+            <span>PaddleOCR Neural Text Recognition</span>
+          </div>
+          <div class="step-item" id="step-3">
+            <span class="step-bullet">3</span>
+            <span>Evaluating 8 Legal Metrology Mandatory Declarations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <section id="results-section" class="results-container hidden">
+        <div class="results-topbar">
+          <span class="results-badge">LEGAL METROLOGY COMPLIANCE REPORT</span>
+          <div class="results-topbar-actions">
+            <button type="button" id="download-current-pdf-btn" class="btn-pdf-action" title="Download Official Compliance PDF Report">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Download PDF</span>
+            </button>
+            <button type="button" id="recheck-btn" class="btn-recheck">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+              <span>Check Another Product</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hero Overall Status Card -->
+        <div id="overall-status-card" class="status-hero">
+          <div class="status-hero-icon" id="status-icon">✅</div>
+          <div class="status-hero-content">
+            <div class="status-tag-row">
+              <span class="status-main-title" id="status-title">PRODUCT COMPLIANT</span>
+              <span class="status-score-chip" id="status-score">8 / 8 checks passed</span>
+            </div>
+            <p class="status-hero-desc" id="status-desc">All mandatory Legal Metrology packaged commodity declarations are detected and verified.</p>
+          </div>
+        </div>
+
+        <!-- Detailed Compliance Table Card -->
+        <div class="card table-card">
+          <div class="table-card-header">
+            <h3 class="table-title">8 Mandatory Declaration Checks</h3>
+            <div class="legend-pills">
+              <span class="legend-pill pass">✓ PASS</span>
+              <span class="legend-pill fail">✗ FAIL</span>
+              <span class="legend-pill unverified">⚡ UNVERIFIED</span>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="compliance-table" id="compliance-table">
+              <thead>
+                <tr>
+                  <th style="width: 30%;">Requirement</th>
+                  <th style="width: 15%;">Status</th>
+                  <th style="width: 25%;">Detected Information</th>
+                  <th style="width: 30%;">Evidence / Matched Text</th>
+                </tr>
+              </thead>
+              <tbody id="compliance-table-body">
+                <!-- Injected by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Failed / Flagged Breakdown (If any fails or unverified) -->
+        <div id="failed-section" class="card failed-card hidden">
+          <div class="failed-card-header">
+            <div class="failed-header-icon">⚠️</div>
+            <div>
+              <h3 class="failed-title">Action Required: Flagged Declarations</h3>
+              <p class="failed-desc">The following mandatory declarations were missing or format non-compliant:</p>
+            </div>
+          </div>
+          <div class="failed-list" id="failed-items-container">
+            <!-- Injected by app.js -->
+          </div>
+        </div>
+
+        <!-- Raw OCR Inspection Accordion -->
+        <div class="card accordion-card">
+          <details class="ocr-details">
+            <summary class="ocr-summary">
+              <div class="summary-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>View Raw Extracted OCR Text</span>
+              </div>
+              <span class="summary-toggle-icon">▼</span>
+            </summary>
+            <div class="ocr-content-grid">
+              <div class="ocr-column">
+                <h4>Front Image OCR Text</h4>
+                <pre class="ocr-code-block" id="raw-ocr-front-text">No text extracted.</pre>
+              </div>
+              <div class="ocr-column">
+                <h4>Back Image OCR Text</h4>
+                <pre class="ocr-code-block" id="raw-ocr-back-text">No text extracted.</pre>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Bottom Actions CTA -->
+        <div class="results-footer-cta">
+          <button type="button" id="bottom-download-pdf-btn" class="btn-pdf-action-large">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download Compliance PDF Report</span>
+          </button>
+          <button type="button" id="bottom-recheck-btn" class="btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            <span>Check Another Product</span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- History View Section -->
+    <section id="history-section" class="history-container hidden">
+      <div class="history-header">
+        <div class="history-title-group">
+          <h2 class="history-title">COMPLIANCE HISTORY</h2>
+          <span class="history-subtitle">All previously completed product compliance checks</span>
+        </div>
+        <button type="button" id="clear-history-btn" class="btn-clear-history">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          <span>Clear All History</span>
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div id="history-empty" class="history-empty-card">
+        <div class="empty-icon-circle">📋</div>
+        <h3 class="empty-title">No compliance checks have been performed yet.</h3>
+        <p class="empty-desc">Complete a product compliance check to see it here.</p>
+        <button type="button" id="empty-start-scan-btn" class="btn-primary" style="margin-top: 1rem;">
+          <span>Start Compliance Check</span>
+        </button>
+      </div>
+
+      <!-- History Cards List -->
+      <div id="history-list" class="history-list-grid">
+        <!-- Injected via app.js -->
+      </div>
+    </section>
+
+    <!-- Confirmation Modal Dialog -->
+    <div id="confirm-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-icon-wrapper" id="modal-icon">⚠️</div>
+          <h3 class="modal-title" id="modal-title">Confirm Deletion</h3>
+        </div>
+        <p class="modal-message" id="modal-message">Are you sure you want to delete this compliance record?</p>
+        <div class="modal-actions">
+          <button type="button" id="modal-cancel-btn" class="btn-secondary">Cancel</button>
+          <button type="button" id="modal-confirm-btn" class="btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer & Legal Disclaimer -->
+    <footer class="footer">
+      <div class="disclaimer-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <strong>Legal Disclaimer:</strong>
+        <span>This application is an AI-assisted preliminary compliance screening tool based on detected packaging declarations. Its result does not constitute an official Legal Metrology certificate, statutory audit, or formal legal advice.</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Client-Side PDF Generation Engine (Vendored) -->
+  <script src="libs/jspdf.umd.min.js"></script>
+  <script src="libs/jspdf.plugin.autotable.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
