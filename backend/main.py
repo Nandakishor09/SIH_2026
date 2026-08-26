@@ -214,6 +214,15 @@ async def get_sample_image(filename: str):
     return FileResponse(file_path)
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Serves standard browser favicon."""
+    ico_path = FRONTEND_DIR / "favicon.ico"
+    if ico_path.exists():
+        return FileResponse(ico_path, media_type="image/x-icon")
+    raise HTTPException(status_code=404, detail="Favicon not found")
+
+
 # Mount frontend static directory
 if FRONTEND_DIR.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

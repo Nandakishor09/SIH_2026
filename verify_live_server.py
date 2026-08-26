@@ -73,7 +73,8 @@ def run_live_verification():
     assert "Legal Metrology Compliance Checker" in html, "Header not in index.html"
     assert "Upload the front and back of a packaged product" in html, "Subtitle not in index.html"
     assert "compliance-table" in html, "Table not in index.html"
-    print("[PASS] 1. GET / (Frontend HTML UI loaded successfully)")
+    assert 'rel="icon" type="image/svg+xml" href="favicon.svg"' in html, "Favicon SVG tag missing in index.html"
+    print("[PASS] 1. GET / (Frontend HTML UI loaded successfully with Favicon tags)")
 
     css = test_get("/styles.css").decode("utf-8")
     assert "--bg-main" in css, "CSS variables missing"
@@ -82,6 +83,14 @@ def run_live_verification():
     js = test_get("/app.js").decode("utf-8")
     assert "DOMContentLoaded" in js, "JS file invalid"
     print("[PASS] 3. GET /app.js (Frontend controller script loaded)")
+
+    fav_ico = test_get("/favicon.ico")
+    assert len(fav_ico) > 0, "Favicon .ico is empty"
+    print("[PASS] 3a. GET /favicon.ico (Multi-res browser icon served)")
+
+    fav_svg = test_get("/favicon.svg")
+    assert b"<svg" in fav_svg, "Favicon SVG invalid"
+    print("[PASS] 3b. GET /favicon.svg (Scalable vector favicon served)")
 
     # 2. Verify Sample Catalog API
     samples_raw = test_get("/api/samples").decode("utf-8")
